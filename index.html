@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makanbang</title>
+
+    <link rel="shortcut icon" href="logo-makanbang.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans&display=swap" rel="stylesheet">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .font-jakarta {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('onboard', function () {
+                return {
+                    onBoard: this.$persist(true),
+                    datas: [
+                        {
+                            id: 1,
+                            img: "onboard1.png",
+                            imgDesc: "Ilustrasi 1",
+                            title: "86% gen Z mengalami sindrom 'Menu Anxiety'",
+                            body: "Mengutip Business Insider, sebuah survei terbaru yang dilakukan oleh jaringan restoran Inggris, Prezzo, menemukan bahwa 86 persen gen Z terkena menu anxiety saat makan di restoran. Makanbang hadir untuk mengatasi permasalahan ini",
+                        },
+                        {
+                            id: 2,
+                            img: "onboard2.png",
+                            imgDesc: "Ilustrasi 2",
+                            title: "Kumpulkan menu makanmu biar Makanbang yang tentukan",
+                            body: "Makanbang mengklasifikasi makanan berdasarkan Breakfast, Lunch, Dinner, Snack, dan Drink. Hal ini membantu kamu mengkustomisasi makanan apa saja yang ada pada kategori-kategori tersebut untuk diacak lalu dijadikan menu.",
+                        },
+                        {
+                            id: 3,
+                            img: "onboard3.png",
+                            imgDesc: "Ilustrasi 3",
+                            title: "Tak ada lagi menu 'Terserah'",
+                            body: "Makanbang akan menentukan makanan apa yang harus dimakan hari ini tanpa bingung memikirkan menu 'Terserah'",
+                        },
+                    ],
+                    page: 1,
+
+                    prev() {
+                        this.page -= 1
+                    },
+                    next() {
+                        this.page += 1
+                    },
+                    goPage(param) {
+                        this.page = param
+                    },
+                    skip() {
+                        this.page = 1
+                        this.onBoard = !this.onBoard
+                    }
+                }
+            })
+            Alpine.data('lain', () => ({
+
+            }))
+        })
+    </script>
+</head>
+
+<body class="text-base antialiased text-gray-800 bg-red-50 lg:text-lg">
+    <!-- onboard -->
+    <div class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-red-50 md:mx-auto"
+        x-data="onboard" x-show="onBoard" x-cloak>
+        <template x-for="(data, index) in datas" :key="index">
+            <div class="flex flex-col justify-between h-full max-w-xl overflow-auto bg-white" x-show="data.id == page">
+                <div class="px-2 text-center md:px-4">
+                    <img :src="data.img" :alt="data.imgDesc" class="mx-auto mt-8">
+                    <div class="px-6 mb-8 text-2xl font-semibold lg:text-3xl" x-text="data.title"></div>
+                    <p x-text="data.body"></p>
+                </div>
+                <div class="flex items-center justify-between p-2 md:p-4">
+                    <button @click="index != 0 ? prev() : ''"
+                        :class="index == 0 ? 'text-gray-300 cursor-default':'text-red-500 border-red-500 focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 disabled:bg-red-700 focus-visible:ring-red-400'"
+                        class="inline-flex items-center justify-center px-3 font-medium transition-colors duration-75 border rounded-lg rounded-l-full shadow-sm">
+                        Prev</button>
+                    <div class="flex items-center justify-center gap-5">
+                        <template x-for="(indicator, index) in datas" :key="index">
+                            <button :class="indicator.id == page ? 'text-red-500' : ''"
+                                @click="goPage(indicator.id)">o</button>
+                        </template>
+                    </div>
+                    <button @click="page != datas.length ? next() : skip()"
+                        x-text="page != datas.length ? 'Next' : 'Skip'"
+                        class="inline-flex items-center justify-center px-3 font-medium text-red-500 transition-colors duration-75 border border-red-500 rounded-lg rounded-r-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 disabled:bg-red-700 focus-visible:ring-red-400"></button>
+                </div>
+            </div>
+        </template>
+    </div>
+    <main class="font-extrabold text-7xl">Welcome</main>
+</body>
+
+</html>
