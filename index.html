@@ -283,16 +283,22 @@
                 ],
 
                 init() {
-                    this.setRandomFood();
+                    this.setRandomFood(0);
                 },
-                toggle() {
+                toggle(type = 0) {
                     this.open = !this.open
-                    setTimeout(() => this.setRandomFood(), 500)
+                    setTimeout(() => this.setRandomFood(type), 500)
                     setTimeout(() => this.open = !this.open, 2000)
                 },
-                setRandomFood() {
-                    foodIndex = Math.floor(Math.random() * this.foods.length) + 1
-                    this.randomFood = this.foods[foodIndex]
+                setRandomFood(type) {
+                    if (type == 0) {
+                        foodIndex = Math.floor(Math.random() * this.foods.length - 1) + 1
+                        this.randomFood = this.foods[foodIndex]
+                    } else if (type >= 0) {
+                        foodCategory = this.foods.filter((food) => food.categoryId == type)
+                        foodIndex = Math.floor(Math.random() * foodCategory.length - 1) + 1
+                        this.randomFood = foodCategory[foodIndex]
+                    }
                 }
             }))
             Alpine.store('onBoard', {
@@ -468,15 +474,15 @@
                     class="flex flex-wrap items-center justify-around gap-2 p-2 mx-2 my-4 bg-white rounded-lg shadow md:flex-col md:items-stretch">
                     <button @click="toggle()"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Random</button>
-                    <button
+                    <button @click="toggle(1)"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Breakfast</button>
-                    <button
+                    <button @click="toggle(2)"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Lunch</button>
-                    <button
+                    <button @click="toggle(3)"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Dinner</button>
-                    <button
+                    <button @click="toggle(4)"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Snack</button>
-                    <button
+                    <button @click="toggle(5)"
                         class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Drink</button>
                 </div>
             </div>
