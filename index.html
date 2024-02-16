@@ -80,6 +80,221 @@
                     isModal: false,
                 }
             })
+            Alpine.data('random', () => ({
+                open: false,
+                isModal: false,
+                randomFood: null,
+                categories: [
+                    {
+                        id: 1,
+                        name: 'Breakfast',
+                        description: 'Sarapan/Makan Pagi',
+                    },
+                    {
+                        id: 2,
+                        name: 'Lunch',
+                        description: 'Makan Siang',
+                    },
+                    {
+                        id: 3,
+                        name: 'Dinner',
+                        description: 'Makan Malam',
+                    },
+                    {
+                        id: 4,
+                        name: 'Snack',
+                        description: 'Cemilan/Makanan Ringan',
+                    },
+                    {
+                        id: 5,
+                        name: 'Drink',
+                        description: 'Minuman',
+                    }
+                ],
+                foods: [
+                    {
+                        id: 1,
+                        categoryId: 2,
+                        link: 'chicken.jpg',
+                        name: 'Chicken',
+                        description: 'Ayam Tepung. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 2,
+                        categoryId: 4,
+                        link: 'crepes.jpg',
+                        name: 'Crepes',
+                        description: 'Jajanan Favorit terlupakan well. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 3,
+                        categoryId: 1,
+                        link: 'croissant.jpg',
+                        name: 'Croissant',
+                        description: 'Sarapan ala-ala Prancis. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 4,
+                        categoryId: 4,
+                        link: 'cupcake.jpg',
+                        name: 'Cup Cake',
+                        description: 'Jajanan kue Amerika. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 5,
+                        categoryId: 4,
+                        link: 'donat.jpg',
+                        name: 'Donat',
+                        description: 'Donat bikin hemat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 6,
+                        categoryId: 2,
+                        link: 'kebab.jpg',
+                        name: 'Kebab',
+                        description: 'Kebab Turki Bikin Nagih. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 7,
+                        categoryId: 5,
+                        link: 'kopi.jpg',
+                        name: 'Kopi',
+                        description: 'Awali dengan Kopi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 8,
+                        categoryId: 5,
+                        link: 'lemon-tea.jpg',
+                        name: 'Lemon Tea',
+                        description: 'Teh Lemon enak. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 9,
+                        categoryId: 4,
+                        link: 'macaroon.jpg',
+                        name: 'Macaroon',
+                        description: 'Teh Lemon enak. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 10,
+                        categoryId: 2,
+                        link: 'mie-baso.jpg',
+                        name: 'Mie Bakso',
+                        description: 'Mie Bakso. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 11,
+                        categoryId: 3,
+                        link: 'mie-goreng.jpg',
+                        name: 'Mie Goreng',
+                        description: 'mie-goreng. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 12,
+                        categoryId: 5,
+                        link: 'milk-oreo.jpg',
+                        name: 'Milk Oreo',
+                        description: 'milk-oreo. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 13,
+                        categoryId: 5,
+                        link: 'milktea.jpg',
+                        name: 'Milktea',
+                        description: 'milktea. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 14,
+                        categoryId: 3,
+                        link: 'nasi-goreng.jpg',
+                        name: 'Nasi Goreng',
+                        description: 'nasi-goreng. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 15,
+                        categoryId: 3,
+                        link: 'nasi-kebuli.jpg',
+                        name: 'Nasi Kebuli',
+                        description: 'nasi-kebuli. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 16,
+                        categoryId: 1,
+                        link: 'nasi-uduk.jpg',
+                        name: 'Nasi Uduk',
+                        description: 'nasi-uduk. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 17,
+                        categoryId: 4,
+                        link: 'pisang.jpg',
+                        name: 'Pisang',
+                        description: 'pisang. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 18,
+                        categoryId: 3,
+                        link: 'salad-buah.jpg',
+                        name: 'Salad Buah',
+                        description: 'salad-buah. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 19,
+                        categoryId: 1,
+                        link: 'salad-sayur.jpg',
+                        name: 'Salad Sayur',
+                        description: 'salad-sayur. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 20,
+                        categoryId: 3,
+                        link: 'satai.jpg',
+                        name: 'Satai',
+                        description: 'satai. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 21,
+                        categoryId: 1,
+                        link: 'sayur-sop.jpg',
+                        name: 'Sayur Sop',
+                        description: 'sayur-sop. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 22,
+                        categoryId: 4,
+                        link: 'strawberi.jpg',
+                        name: 'Strawberi',
+                        description: 'strawberi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 23,
+                        categoryId: 5,
+                        link: 'susu.jpg',
+                        name: 'Susu',
+                        description: 'susu. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                    {
+                        id: 24,
+                        categoryId: 5,
+                        link: 'teh.jpg',
+                        name: 'Teh',
+                        description: 'teh. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                    },
+                ],
+
+                init() {
+                    this.setRandomFood();
+                },
+                toggle() {
+                    this.open = !this.open
+                    setTimeout(() => this.setRandomFood(), 500)
+                    setTimeout(() => this.open = !this.open, 2000)
+                },
+                setRandomFood() {
+                    foodIndex = Math.floor(Math.random() * this.foods.length) + 1
+                    this.randomFood = this.foods[foodIndex]
+                }
+            }))
             Alpine.store('onBoard', {
                 onBoard: Alpine.$persist(true),
                 toggle() {
@@ -141,7 +356,7 @@
                         d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                 </svg>
             </button>
-            <div :class="isAction ? 'flex' : 'hidden'"
+            <div :class="isAction ? 'flex' : 'hidden'" x-cloak
                 class="absolute flex-col flex-wrap gap-2 p-4 bg-white rounded shadow md:flex right-4 md:shadow-none md:bg-transparent md:flex-nowrap md:flex-row md:static top-full">
                 <button @click="$store.onBoard.toggle()"
                     class="inline-flex items-center gap-1 px-2 py-1 font-medium border border-gray-800 rounded-lg focus:outline-none focus-visible:ring">
@@ -182,7 +397,7 @@
             </div>
         </div>
         <!-- Modal Header -->
-        <div x-show="isModal"
+        <div x-show="isModal" x-cloak
             class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
             <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
                 @click.outside="isModal = false">
@@ -196,7 +411,7 @@
                             class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
                     </div>
                     <div class="my-2">
-                        <label for="message" class="text-sm text-gray-700 lg:text-base">Nama Lengkap</label>
+                        <label for="message" class="text-sm text-gray-700 lg:text-base">Pesan</label>
                         <input type="text" id="message" x-model="message"
                             class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
                     </div>
@@ -218,7 +433,78 @@
             </div>
         </div>
     </header>
-    <main class="">Welcome</main>
+    <main class="">
+        <!-- Random Menu -->
+        <div class="md:container md:mx-auto" x-data="random">
+            <h1 class="px-2 my-4 text-4xl font-medium lg:text-5xl">
+                Harus makan apa hari ini?
+            </h1>
+            <div class="flex flex-col md:flex-row md:justify-center md:gap-4">
+                <div class="relative overflow-hidden md:w-1/2">
+                    <img :src="randomFood.link" alt="menu random"
+                        class=" object-cover object-center aspect-[4/3] bg-black z-0">
+                    <div class="absolute inset-0 z-50 flex items-center justify-center text-white bg-gray-800"
+                        x-show="open" x-cloak x-transition:enter="duration-500"
+                        x-transition:enter-start="-translate-y-full" x-transition:enter-end="translate-y-0"
+                        x-transition:leave="duration-500" x-transition:leave-start="translate-y-0"
+                        x-transition:leave-end="-translate-y-full">
+                        <div>Tunggu...</div>
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 right-0 flex items-center justify-between px-2 py-1 text-2xl font-semibold text-gray-800 bg-red-300 lg:text-3xl">
+                        <div x-text="randomFood.name">Nama Makanan</div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor"
+                        class="absolute w-6 h-6 bg-gray-300 rounded-full cursor-pointer top-2 right-2 md:w-7 md:h-7"
+                        @click="isModal = true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                    </svg>
+
+                </div>
+
+                <div
+                    class="flex flex-wrap items-center justify-around gap-2 p-2 mx-2 my-4 bg-white rounded-lg shadow md:flex-col md:items-stretch">
+                    <button @click="toggle()"
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Random</button>
+                    <button
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Breakfast</button>
+                    <button
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Lunch</button>
+                    <button
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Dinner</button>
+                    <button
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Snack</button>
+                    <button
+                        class="inline-flex items-center justify-center px-2 py-1 font-medium text-white transition-colors duration-75 bg-gray-500 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus-visible:ring hover:bg-gray-600 hover:text-white active:bg-gray-700 disabled:bg-gray-700 focus-visible:ring-gray-400 disabled:cursor-not-allowed">Drink</button>
+                </div>
+            </div>
+            <!-- Modal Random -->
+            <div x-show="isModal" x-cloak
+                class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
+                <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
+                    @click.outside="isModal = false">
+                    <div class="flex justify-between px-4 py-2 bg-red-600">
+                        <h2 class="text-xl font-semibold text-white lg:text-2xl">Deskripsi Makanan</h2>
+                    </div>
+                    <div class="px-4 my-4">
+                        <h1 class="text-2xl font-semibold lg:text-3xl" x-text="randomFood.name"></h1>
+                        <template x-for="(category, index) in categories" :key="index">
+                            <template x-if="randomFood.categoryId == category.id">
+                                <h5 class="font-semibold text-gray-500" x-text="category.name"></h5>
+                            </template>
+                        </template>
+                        <p class="mt-4" x-text="randomFood.description"></p>
+                    </div>
+                    <div class="flex justify-end px-4 mx-2 mt-8 mb-4">
+                        <button type="button" @click="isModal = false"
+                            class="inline-flex items-center justify-center px-2 font-medium text-red-600 uppercase focus:outline-none">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 
 </html>
