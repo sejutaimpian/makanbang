@@ -286,23 +286,37 @@
                     this.setRandomFood(0);
                 },
                 toggle(type = 0) {
-                    this.open = !this.open
+                    this.open = true
                     setTimeout(() => this.setRandomFood(type), 500)
-                    setTimeout(() => this.open = !this.open, 2000)
                 },
                 setRandomFood(type) {
                     if (type == 0) {
-                        foodIndex = Math.floor(Math.random() * this.foods.length - 1) + 1
+                        let foodIndex;
+                        if (this.randomFood) {
+                            do {
+                                foodIndex = Math.floor(Math.random() * this.foods.length - 1) + 1
+                            } while (this.randomFood.id == this.foods[foodIndex].id)
+                        } else {
+                            foodIndex = Math.floor(Math.random() * this.foods.length - 1) + 1
+                        }
                         this.randomFood = this.foods[foodIndex]
                     } else if (type >= 0) {
                         foodCategory = this.foods.filter((food) => food.categoryId == type)
-                        foodIndex = Math.floor(Math.random() * foodCategory.length - 1) + 1
+                        do {
+                            foodIndex = Math.floor(Math.random() * foodCategory.length - 1) + 1
+                        } while (this.randomFood.id == foodCategory[foodIndex].id)
                         this.randomFood = foodCategory[foodIndex]
                     }
                 }
             }))
             Alpine.store('onBoard', {
                 onBoard: Alpine.$persist(true),
+                toggle() {
+                    this.onBoard = !this.onBoard
+                }
+            })
+            Alpine.store('makanBang', {
+                menu: Alpine.$persist(true),
                 toggle() {
                     this.onBoard = !this.onBoard
                 }
@@ -315,7 +329,7 @@
 <body class="text-base antialiased text-gray-800 bg-red-50 lg:text-lg">
     <!-- Onboard -->
     <div class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-red-50 md:mx-auto"
-        x-data="onboard" x-show="$store.onBoard.onBoard" x-cloak>
+        x-data="onboard" x-show="$store.onBoard.onBoard" x-transition x-cloak>
         <template x-for="(data, index) in datas" :key="index">
             <div class="flex flex-col justify-between h-full max-w-xl overflow-auto bg-white" x-show="data.id == page">
                 <div class="relative px-2 text-center md:px-4">
@@ -403,7 +417,7 @@
             </div>
         </div>
         <!-- Modal Header -->
-        <div x-show="isModal" x-cloak
+        <div x-show="isModal" x-transition x-cloak
             class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
             <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
                 @click.outside="isModal = false">
@@ -447,7 +461,7 @@
             </h1>
             <div class="flex flex-col md:flex-row md:justify-center md:gap-4">
                 <div class="relative overflow-hidden md:w-1/2">
-                    <img :src="randomFood.link" alt="menu random"
+                    <img :src="randomFood.link" alt="menu random" @load="open = false"
                         class=" object-cover object-center aspect-[4/3] bg-black z-0">
                     <div class="absolute inset-0 z-50 flex items-center justify-center text-white bg-gray-800"
                         x-show="open" x-cloak x-transition:enter="duration-500"
@@ -487,7 +501,7 @@
                 </div>
             </div>
             <!-- Modal Random -->
-            <div x-show="isModal" x-cloak
+            <div x-show="isModal" x-cloak x-transition
                 class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
                 <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
                     @click.outside="isModal = false">
