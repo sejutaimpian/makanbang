@@ -50,23 +50,28 @@
                         },
                     ],
                     page: 1,
+                    get isOnBoard() {
+                        return Alpine.store('makanBang').isOnBoard
+                    },
 
-                    prev() {
-                        this.page -= 1
+                    goPage(param) {
+                        this.page = param
                     },
                     next() {
                         this.page += 1
                     },
-                    goPage(param) {
-                        this.page = param
+                    prev() {
+                        this.page -= 1
                     },
+                    // setter berguna untuk memanggil data dari tempat lain seperti store
+                    skip() {
+                        Alpine.store('makanBang').toggleOnBoard()
+                        this.page = 1
+                    }
                 }
             })
             Alpine.data('profile', function () {
                 return {
-                    profilePicture: this.$persist('https://api.dicebear.com/6.x/lorelei/svg?seed=Peanut'),
-                    name: this.$persist('Eris Sulistina'),
-                    message: this.$persist('Makan Sehat jangan Jahat'),
                     avatars: [
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Peanut',
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Oreo',
@@ -76,14 +81,21 @@
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Kitty'
                     ],
                     isAction: false,
-                    // Modal
                     isModal: false,
+                    message: this.$persist('Makan Sehat jangan Jahat'),
+                    name: this.$persist('Eris Sulistina'),
+                    profilePicture: this.$persist('https://api.dicebear.com/6.x/lorelei/svg?seed=Peanut'),
+
+                    toggleOnBoard() {
+                        Alpine.store('makanBang').toggleOnBoard()
+                    }
                 }
             })
             Alpine.data('random', () => ({
-                open: false,
-                isModal: false,
-                randomFood: null,
+                init() {
+                    this.setRandomFood(0);
+                },
+
                 categories: [
                     {
                         id: 1,
@@ -111,14 +123,13 @@
                         description: 'Minuman',
                     }
                 ],
+                isModalRandom: false,
+                isModalMenu: false,
+                menuFood: null,
+                open: false,
+                randomFood: null,
+
                 // foods: Alpine.store('makanBang').foods, // init diawal saja. jika store mengalami perubahan, data disini tidak ikut berubah
-                init() {
-                    this.setRandomFood(0);
-                },
-                toggle(type = 0) {
-                    this.open = true
-                    setTimeout(() => this.setRandomFood(type), 500)
-                },
                 setRandomFood(type) {
                     if (type == 0) {
                         let foodIndex;
@@ -137,8 +148,17 @@
                         } while (this.randomFood.id == foodCategory[foodIndex].id)
                         this.randomFood = foodCategory[foodIndex]
                     }
-                }
+                },
+                showMenu(index) {
+                    this.menuFood = Alpine.store('makanBang').foods[index]
+                    this.isModalMenu = true
+                },
+                toggle(type = 0) {
+                    this.open = true
+                    setTimeout(() => this.setRandomFood(type), 500)
+                },
             }))
+
             Alpine.store('makanBang', {
                 // onBoard
                 isOnBoard: Alpine.$persist(true),
@@ -319,7 +339,6 @@
                         },
                     ]
                 ),
-
                 resetFoods() {
                     this.foods = [
                         {
@@ -493,6 +512,7 @@
                     ]
                     alert('Data Berhasil Direset')
                 }
+
             })
         })
     </script>
@@ -502,12 +522,11 @@
 <body class="text-base antialiased text-gray-800 bg-red-50 lg:text-lg">
     <!-- Onboard -->
     <div class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-red-50 md:mx-auto"
-        x-data="onboard" x-show="$store.makanBang.isOnBoard" x-transition x-cloak>
+        x-data="onboard" x-show="isOnBoard" x-transition x-cloak>
         <template x-for="(data, index) in datas" :key="index">
             <div class="flex flex-col justify-between h-full max-w-xl overflow-auto bg-white" x-show="data.id == page">
                 <div class="relative px-2 text-center md:px-4">
-                    <button class="absolute text-red-300 top-5 right-8"
-                        @click="$store.makanBang.toggleOnBoard()">Skip</button>
+                    <button class="absolute text-red-300 top-5 right-8" @click="skip()">Skip</button>
                     <img :src="data.img" :alt="data.imgDesc" class="mx-auto mt-16">
                     <div class="px-6 mb-8 text-2xl font-semibold lg:text-3xl" x-text="data.title"></div>
                     <p x-text="data.body"></p>
@@ -523,7 +542,7 @@
                                 @click="goPage(indicator.id)">o</button>
                         </template>
                     </div>
-                    <button @click="page != datas.length ? next() : $store.makanBang.toggleOnBoard()"
+                    <button @click="page != datas.length ? next() : skip()"
                         x-text="page != datas.length ? 'Next' : 'Skip'"
                         class="inline-flex items-center justify-center px-3 font-medium text-red-500 transition-colors duration-75 border border-red-500 rounded-lg rounded-r-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 disabled:bg-red-700 focus-visible:ring-red-400"></button>
                 </div>
@@ -541,7 +560,7 @@
                 <p class="text-sm leading-5 lg:text-base" x-text="message"></p>
             </div>
         </div>
-        <div class="flex items-center" @click.outside="isAction = false">
+        <div class="z-10 flex items-center" @click.outside="isAction = false">
             <button @click="isAction = !isAction"
                 class="mr-4 font-medium rounded-lg focus:outline-none focus-visible:ring md:hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -552,7 +571,7 @@
             </button>
             <div :class="isAction ? 'flex' : 'hidden'" x-cloak
                 class="absolute flex-col flex-wrap gap-2 p-4 bg-white rounded shadow md:flex right-4 md:shadow-none md:bg-transparent md:flex-nowrap md:flex-row md:static top-full">
-                <button @click="$store.makanBang.toggleOnBoard()"
+                <button @click="toggleOnBoard()"
                     class="inline-flex items-center gap-1 px-2 py-1 font-medium border border-gray-800 rounded-lg focus:outline-none focus-visible:ring">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-6 h-6">
@@ -636,7 +655,7 @@
             <div class="flex flex-col md:flex-row md:justify-center md:gap-4">
                 <div class="relative overflow-hidden md:w-1/2">
                     <img :src="randomFood.link" alt="menu random" @load="open = false"
-                        class=" object-cover object-center aspect-[4/3] bg-black z-0">
+                        class="object-cover object-center aspect-[4/3] bg-black z-0">
                     <div class="absolute inset-0 z-50 flex items-center justify-center text-white bg-gray-800"
                         x-show="open" x-cloak x-transition:enter="duration-500"
                         x-transition:enter-start="-translate-y-full" x-transition:enter-end="translate-y-0"
@@ -651,7 +670,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor"
                         class="absolute w-6 h-6 bg-gray-300 rounded-full cursor-pointer top-2 right-2 md:w-7 md:h-7"
-                        @click="isModal = true">
+                        @click="isModalRandom = true">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                     </svg>
@@ -675,10 +694,10 @@
                 </div>
             </div>
             <!-- Modal Random -->
-            <div x-show="isModal" x-cloak x-transition
+            <div x-show="isModalRandom" x-cloak x-transition
                 class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
                 <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
-                    @click.outside="isModal = false">
+                    @click.outside="isModalRandom = false">
                     <div class="flex justify-between px-4 py-2 bg-red-600">
                         <h2 class="text-xl font-semibold text-white lg:text-2xl">Deskripsi Makanan</h2>
                     </div>
@@ -692,17 +711,103 @@
                         <p class="mt-4" x-text="randomFood.description"></p>
                     </div>
                     <div class="flex justify-end px-4 mx-2 mt-8 mb-4">
-                        <button type="button" @click="isModal = false"
+                        <button type="button" @click="isModalRandom = false"
                             class="inline-flex items-center justify-center px-2 font-medium text-red-600 uppercase focus:outline-none">Tutup</button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- List Menu -->
-        <div class="mt-8 text-white bg-gray-800 md:container md:mx-auto">
+        <div class="px-2 py-4 mt-8 text-white bg-gray-800 md:container md:mx-auto">
             <!-- Filter -->
-            <div>
-                Welcome
+            <div class="mb-8 flex flex-col md:flex-row gap-y-2 md:gap-x-4">
+                <div class="space-y-1 md:flex-1">
+                    <h3 class="hidden text-lg font-semibold lg:text-xl md:block">Search Food</h3>
+                    <input type="text" placeholder="Cari menu..."
+                        class="bg-white flex w-full px-3 text-gray-800 max-w-2xl rounded-lg shadow-sm min-h-[2.25rem] py-0 md:min-h-[2.5rem] border border-gray-300 outline-0 focus:border-red-500 focus:ring-red-500">
+                </div>
+                <div class="space-y-1 md:flex-1">
+                    <h3 class="hidden text-lg font-semibold lg:text-xl md:block">Filter by Category</h3>
+                    <div class="flex flex-wrap gap-1">
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 bg-red-600 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">All</button>
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">Breakfast</button>
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">Lunch</button>
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">Dinner</button>
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">Snack</button>
+                        <button
+                            class="inline-flex items-center justify-center px-3 font-medium text-gray-100 no-underline transition-colors duration-75 border-2 border-red-600 rounded-full shadow-sm focus:outline-none focus-visible:ring hover:bg-red-600 hover:text-white active:bg-red-700 ">Drink</button>
+                    </div>
+                </div>
+            </div>
+            <!-- List Menu -->
+            <div class="my-8 grid grid-cols-1 gap-4 lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2">
+                <template x-for="(food, foodIndex) in $store.makanBang.foods" :key="foodIndex">
+                    <div class="flex gap-x-2 hover:bg-gray-900">
+                        <img loading="lazy" :src="food.link" :alt="'Foto ' + food.name"
+                            class="w-32 border border-white aspect-[3/4] object-cover object-center bg-black">
+                        <div class="flex flex-col justify-between">
+                            <div>
+                                <h4 class="mb-2 text-base font-bold text-gray-200 lg:text-lg line-clamp-2"
+                                    x-text="food.name"></h4>
+                                <p class="leading-tight text-gray-300 line-clamp-3" x-text="food.description"></p>
+                            </div>
+                            <div>
+                                <button class="inline-flex items-center justify-center w-6 h-6 rounded-full"
+                                    title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                </button>
+                                <button class="inline-flex items-center justify-center w-6 h-6 rounded-full"
+                                    title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                </button>
+                                <button class="inline-flex items-center justify-center w-6 h-6 rounded-full"
+                                    title="Info" @click="showMenu(foodIndex)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <!-- Modal Menu -->
+            <div x-show="isModalMenu" x-cloak x-transition
+                class="fixed top-0 left-0 right-0 text-gray-800 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
+                <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
+                    @click.outside="isModalMenu = false">
+                    <div class="flex justify-between px-4 py-2 bg-red-600">
+                        <h2 class="text-xl font-semibold text-white lg:text-2xl">Deskripsi Makanan</h2>
+                    </div>
+                    <div class="px-4 my-4">
+                        <h1 class="text-2xl font-semibold lg:text-3xl" x-text="menuFood.name"></h1>
+                        <template x-for="(category, index) in categories" :key="index">
+                            <template x-if="menuFood.categoryId == category.id">
+                                <h5 class="font-semibold text-gray-500" x-text="category.name"></h5>
+                            </template>
+                        </template>
+                        <p class="mt-4" x-text="menuFood.description"></p>
+                    </div>
+                    <div class="flex justify-end px-4 mx-2 mt-8 mb-4">
+                        <button type="button" @click="isModalMenu = false"
+                            class="inline-flex items-center justify-center px-2 font-medium text-red-600 uppercase focus:outline-none">Tutup</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
