@@ -21,6 +21,23 @@
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    keyframes: {
+                        progress: {
+                            "0%": { transform: "translateX(-100%)" },
+                            "100%": { transform: "translateX(0)" },
+                        },
+                    },
+                    animation: {
+                        progress: "progress 3500ms 1",
+                    },
+                },
+            },
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
     <script>
         document.addEventListener('alpine:init', () => {
@@ -72,6 +89,11 @@
             })
             Alpine.data('profile', function () {
                 return {
+                    addMenu() {
+                        this.menu.id = Date.now()
+                        Alpine.store('makanBang').addMenu(this.menu)
+                        this.menu = {}
+                    },
                     avatars: [
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Peanut',
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Oreo',
@@ -80,12 +102,16 @@
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Mimi',
                         'https://api.dicebear.com/6.x/lorelei/svg?seed=Kitty'
                     ],
+                    get categories() {
+                        return Alpine.store('makanBang').categories
+                    },
                     isAction: false,
                     isModal: false,
+                    isModalAdd: false,
+                    menu: {},
                     message: this.$persist('Makan Sehat jangan Jahat'),
                     name: this.$persist('Eris Sulistina'),
                     profilePicture: this.$persist('https://api.dicebear.com/6.x/lorelei/svg?seed=Peanut'),
-
                     toggleOnBoard() {
                         Alpine.store('makanBang').toggleOnBoard()
                     }
@@ -96,6 +122,78 @@
                     this.setRandomFood(0);
                 },
 
+                get categories() {
+                    return Alpine.store('makanBang').categories
+                },
+                deleteFood(id) {
+                    Alpine.store('makanBang').deleteFood(id)
+                },
+                filterByCategory: 0,
+                filterByKeyword: '',
+                // foods: Alpine.store('makanBang').foods, // init diawal saja. jika store mengalami perubahan, data disini tidak ikut berubah. solusinya pakai getter.
+                get filteredMenu() {
+                    let menus = Alpine.store('makanBang').foods
+                    if (this.filterByCategory) {
+                        menus = menus.filter((menu) => menu.categoryId == this.filterByCategory)
+                    }
+                    if (this.filterByKeyword) {
+                        menus = menus.filter((menu) => menu.name.toLowerCase().includes(this.filterByKeyword.toLowerCase()))
+                    }
+                    return menus
+                },
+                isModalRandom: false,
+                isModalMenu: false,
+                menuFood: {},
+                open: false,
+                randomFood: {},
+                setRandomFood(type) {
+                    if (type == 0) {
+                        let foodIndex;
+                        if (this.randomFood) {
+                            do {
+                                foodIndex = Math.floor(Math.random() * Alpine.store('makanBang').foods.length - 1) + 1
+                            } while (this.randomFood.id == Alpine.store('makanBang').foods[foodIndex].id)
+                        } else {
+                            foodIndex = Math.floor(Math.random() * Alpine.store('makanBang').foods.length - 1) + 1
+                        }
+                        this.randomFood = Alpine.store('makanBang').foods[foodIndex]
+                    } else if (type >= 0) {
+                        foodCategory = Alpine.store('makanBang').foods.filter((food) => food.categoryId == type)
+                        do {
+                            foodIndex = Math.floor(Math.random() * foodCategory.length - 1) + 1
+                        } while (this.randomFood.id == foodCategory[foodIndex].id)
+                        this.randomFood = foodCategory[foodIndex]
+                    }
+                },
+                showMenu(id) {
+                    this.menuFood = Alpine.store('makanBang').menuFood(id)
+                    this.isModalMenu = true
+                },
+                toggle(type = 0) {
+                    this.open = true
+                    setTimeout(() => this.setRandomFood(type), 500)
+                },
+            }))
+            // Alpine.data yg isinya hanya merefer ke Alpine.store dimaksudkan agar pemanggilan data tidak terlalu panjang seperti $store.makanBang.dataToast.message.
+            Alpine.data('toast', function () {
+                return {
+                    get data() {
+                        return Alpine.store('makanBang').dataToast
+                    },
+                    get isShow() {
+                        return Alpine.store('makanBang').isShow
+                    }
+                }
+            })
+
+            Alpine.store('makanBang', {
+                // onBoard
+                isOnBoard: Alpine.$persist(true),
+                toggleOnBoard() {
+                    this.isOnBoard = !this.isOnBoard
+                },
+
+                // Menu
                 categories: [
                     {
                         id: 1,
@@ -123,66 +221,6 @@
                         description: 'Minuman',
                     }
                 ],
-                filterByCategory: 0,
-                filterByKeyword: '',
-                isModalRandom: false,
-                isModalMenu: false,
-                menuFood: {},
-                open: false,
-                randomFood: {},
-                get filteredMenu() {
-                    let menus = Alpine.store('makanBang').foods
-                    if (this.filterByCategory) {
-                        menus = menus.filter((menu) => menu.categoryId == this.filterByCategory)
-                    }
-                    if (this.filterByKeyword) {
-                        menus = menus.filter((menu) => menu.name.toLowerCase().includes(this.filterByKeyword.toLowerCase()))
-                    }
-                    return menus
-                },
-
-                // foods: Alpine.store('makanBang').foods, // init diawal saja. jika store mengalami perubahan, data disini tidak ikut berubah
-                deleteFood(id) {
-                    Alpine.store('makanBang').deleteFood(id)
-                },
-                setRandomFood(type) {
-                    if (type == 0) {
-                        let foodIndex;
-                        if (this.randomFood) {
-                            do {
-                                foodIndex = Math.floor(Math.random() * Alpine.store('makanBang').foods.length - 1) + 1
-                            } while (this.randomFood.id == Alpine.store('makanBang').foods[foodIndex].id)
-                        } else {
-                            foodIndex = Math.floor(Math.random() * Alpine.store('makanBang').foods.length - 1) + 1
-                        }
-                        this.randomFood = Alpine.store('makanBang').foods[foodIndex]
-                    } else if (type >= 0) {
-                        foodCategory = Alpine.store('makanBang').foods.filter((food) => food.categoryId == type)
-                        do {
-                            foodIndex = Math.floor(Math.random() * foodCategory.length - 1) + 1
-                        } while (this.randomFood.id == foodCategory[foodIndex].id)
-                        this.randomFood = foodCategory[foodIndex]
-                    }
-                },
-                showMenu(id) {
-                    // perlu ditambahkan index 0 karena perpindahan dari store ke data malah jadi array
-                    this.menuFood = Alpine.store('makanBang').menuFood(id)[0]
-                    this.isModalMenu = true
-                },
-                toggle(type = 0) {
-                    this.open = true
-                    setTimeout(() => this.setRandomFood(type), 500)
-                },
-            }))
-
-            Alpine.store('makanBang', {
-                // onBoard
-                isOnBoard: Alpine.$persist(true),
-                toggleOnBoard() {
-                    this.isOnBoard = !this.isOnBoard
-                },
-
-                // Menu
                 foods: Alpine.$persist(
                     [
                         {
@@ -356,7 +394,9 @@
                     ]
                 ),
 
-
+                addMenu(menu) {
+                    this.foods.push(menu)
+                },
                 deleteFood(id) {
                     // this.foods.splice(index, 1)
                     // tidak menggunakan array.splice karena list/index menu bisa berubah akibat filter
@@ -365,7 +405,7 @@
                 menuFood(id) {
                     // this.foods.splice(index, 1)
                     // tidak menggunakan array.splice karena list/index menu bisa berubah akibat filter
-                    return this.foods.filter((menu) => menu.id == id)
+                    return this.foods.find((menu) => menu.id == id)
                 },
                 resetFoods() {
                     this.foods = [
@@ -538,7 +578,39 @@
                             description: 'teh. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
                         },
                     ]
-                    //alert('Data Berhasil Direset')
+                    this.setToast('success', 'Berhasil mereset data menu ke setelan pabrik')
+                },
+
+                // Toast
+                dataToast: {
+                    bgStyle: '',
+                    message: '',
+                    status: '',
+                    textStyle: '',
+                },
+                isShow: false,
+                setToast(status, message) {
+                    this.dataToast.status = status
+                    this.dataToast.message = message
+                    if (status == 'danger') {
+                        this.dataToast.bgStyle = 'bg-red-500'
+                        this.dataToast.textStyle = 'text-red-500'
+                    }
+                    if (status == 'warning') {
+                        this.dataToast.bgStyle = 'bg-yellow-500'
+                        this.dataToast.textStyle = 'text-yellow-500'
+                    }
+                    if (status == 'info') {
+                        this.dataToast.bgStyle = 'bg-blue-500'
+                        this.dataToast.textStyle = 'text-blue-500'
+                    }
+                    if (status == 'success') {
+                        this.dataToast.bgStyle = 'bg-green-500'
+                        this.dataToast.textStyle = 'text-green-500'
+                    }
+
+                    this.isShow = true;
+                    setTimeout(() => this.isShow = false, 2000)
                 },
 
                 // Devlopment
@@ -547,37 +619,37 @@
                         {
                             id: 1,
                             categoryId: 2,
-                            link: 'chicken.jpg',
                             name: 'Ayam Tepung',
+                            link: 'chicken.jpg',
                             description: 'Reset Ayam Tepung. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
                         },
                         {
-                            id: 2,
                             categoryId: 4,
+                            id: 2,
                             link: 'crepes.jpg',
                             name: 'Mus',
                             description: 'Reset Jajanan Favorit terlupakan well. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
                         },
                         {
                             id: 3,
-                            categoryId: 1,
                             link: 'croissant.jpg',
                             name: 'Franch',
                             description: 'Reset Sarapan ala-ala Prancis. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                            categoryId: 1,
                         },
                         {
-                            id: 4,
-                            categoryId: 4,
                             link: 'cupcake.jpg',
                             name: 'Kue Amerika',
+                            id: 4,
+                            categoryId: 4,
                             description: 'Reset Jajanan kue Amerika. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
                         },
                         {
-                            id: 5,
                             categoryId: 4,
-                            link: 'donat.jpg',
-                            name: 'Bolong',
+                            id: 5,
                             description: 'Reset Donat bikin hemat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa perspiciatis consectetur maiores eveniet minus laborum in ad, dolor ea mollitia?',
+                            name: 'Bolong',
+                            link: 'donat.jpg',
                         },
                     ]
                 }
@@ -648,7 +720,7 @@
                     </svg>
                     <span>Onboard</span>
                 </button>
-                <button @click="alert('fitur belum tersedia')"
+                <button @click="$store.makanBang.setToast('danger', 'Gagal menambahkan fitur Toast')"
                     class="inline-flex items-center gap-1 px-2 py-1 font-medium border border-gray-800 rounded-lg focus:outline-none focus-visible:ring">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-6 h-6">
@@ -657,7 +729,7 @@
                     </svg>
                     <span>Theme</span>
                 </button>
-                <button @click="$store.makanBang.devFoods()"
+                <button @click="isModalAdd = true"
                     class="inline-flex items-center gap-1 px-2 py-1 font-medium border border-gray-800 rounded-lg focus:outline-none focus-visible:ring">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-6 h-6">
@@ -709,6 +781,52 @@
                     <div class="flex justify-end mt-8">
                         <button type="submit"
                             class="inline-flex items-center justify-center px-2 font-medium text-red-600 focus:outline-none">UPDATE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal Add Menu -->
+        <div x-show="isModalAdd" x-transition x-cloak
+            class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
+            <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
+                @click.outside="isModalAdd = false">
+                <div class="flex justify-between px-4 py-2 bg-red-600">
+                    <h2 class="text-xl font-semibold text-white lg:text-2xl">Add Menu</h2>
+                </div>
+                <form @submit.prevent="addMenu()" class="px-4 my-4">
+                    <div class="my-2">
+                        <label for="name" class="text-sm text-gray-700 lg:text-base">Nama Menu</label>
+                        <input type="text" id="name" x-model="menu.name" required
+                            class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                    </div>
+                    <div class="my-2">
+                        <label for="description" class="text-sm text-gray-700 lg:text-base">Deskripsi Menu</label>
+                        <input type="text" id="description" x-model="menu.description" required
+                            class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                    </div>
+                    <div class="my-2">
+                        <label for="categoryId" class="text-sm text-gray-700 lg:text-base">Kategori Menu</label>
+                        <select name="categoryId" id="categoryId" required x-model="menu.categoryId"
+                            class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                            <option selected class="hidden" value="">Pilih Kategori Menu</option>
+                            <template x-for="category in categories">
+                                <option :value="category.id" x-text="category.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="my-2">
+                        <label for="link" class="text-sm text-gray-700 lg:text-base">Link Foto Menu</label>
+                        <input type="url" id="link" x-model="menu.link" required
+                            class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                        <div class="mt-1 bg-black size-40" x-show="menu.link">
+                            <img :src="menu.link" alt="Preview link foto">
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-8">
+                        <button type="submit"
+                            class="inline-flex items-center justify-center px-2 font-medium text-red-600 focus:outline-none">
+                            Add Menu
+                        </button>
                     </div>
                 </form>
             </div>
@@ -886,6 +1004,26 @@
             </div>
         </div>
     </main>
+    <footer></footer>
+    <!-- Toast -->
+    <div class="fixed z-10 inline-flex max-w-sm overflow-hidden text-gray-800 bg-white border rounded-lg shadow-md dark:bg-gray-950 dark:text-gray-100 top-14 right-4 sm:w-1/2"
+        role="alert" x-show="isShow" x-transition.opacity.out.duration.1500ms x-cloak x-data="toast">
+        <div class="flex items-center justify-center w-12 pb-1" :class="data.bgStyle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-6 h-6 text-white fill-current">
+                <path fill-rule="evenodd"
+                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="flex-1 px-4 pt-2 pb-3">
+            <span class="font-semibold capitalize" :class="data.textStyle" x-text="data.status"></span>
+            <p class="text-sm" x-text="data.message"></p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 w-full h-1 bg-gray-100 group">
+            <span class="absolute top-0 bottom-0 left-0 w-full h-full animate-progress" :class="data.bgStyle"></span>
+        </div>
+    </div>
 </body>
 
 </html>
