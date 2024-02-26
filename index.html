@@ -154,11 +154,12 @@
                     }
                     return menus
                 },
+                isModalEdit: false,
                 isModalRandom: false,
                 isModalMenu: false,
-                menuFood: {},
                 open: false,
                 randomFood: {},
+                selectedMenu: {},
                 setRandomFood(type) {
                     if (type == 0) {
                         let foodIndex;
@@ -178,9 +179,13 @@
                         this.randomFood = foodCategory[foodIndex]
                     }
                 },
-                showMenu(id) {
-                    this.menuFood = Alpine.store('makanBang').menuFood(id)
-                    this.isModalMenu = true
+                showMenu(id, type) {
+                    this.selectedMenu = Alpine.store('makanBang').selectedMenu(id)
+                    if (type == 'edit') {
+                        this.isModalEdit = true
+                    } else {
+                        this.isModalMenu = true
+                    }
                 },
                 toggle(type = 0) {
                     this.open = true
@@ -416,9 +421,7 @@
                     this.foods = this.foods.filter((menu) => menu.id != id)
                     this.setToast('success', 'Berhasil menghapus menu')
                 },
-                menuFood(id) {
-                    // this.foods.splice(index, 1)
-                    // tidak menggunakan array.splice karena list/index menu bisa berubah akibat filter
+                selectedMenu(id) {
                     return this.foods.find((menu) => menu.id == id)
                 },
                 resetFoods() {
@@ -634,11 +637,7 @@
                     id: null,
                 },
                 isDialog: false,
-                promiseDialog: new Promise((res, rej) => {
-                    res()
-                }),
                 setDialog() {
-                    //this.promiseDialog.then(() => this.deleteFood(id))
                     if (this.dataDialog.type == 'delete' && this.dataDialog.id) {
                         this.deleteFood(this.dataDialog.id)
                     } else {
@@ -648,8 +647,8 @@
                 },
                 toggleIsDialog(message, type = '', id = 0) {
                     if (this.isDialog == true) {
-                        this.dataDialog = {}
                         this.isDialog = false
+                        this.dataDialog = {}
                     } else {
                         this.dataDialog.message = message
                         this.dataDialog.type = type
@@ -1004,7 +1003,7 @@
                                     </svg>
                                 </button>
                                 <button class="inline-flex items-center justify-center w-6 h-6 rounded-full"
-                                    title="Edit">
+                                    title="Edit" @click="showMenu(food.id, 'edit')">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -1024,7 +1023,7 @@
                     </div>
                 </template>
             </div>
-            <!-- Modal Menu -->
+            <!-- Modal Info Menu -->
             <div x-show="isModalMenu" x-cloak x-transition
                 class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen text-gray-800 bg-slate-800/80 md:mx-auto">
                 <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow"
@@ -1033,18 +1032,63 @@
                         <h2 class="text-xl font-semibold text-white lg:text-2xl">Deskripsi Makanan</h2>
                     </div>
                     <div class="px-4 my-4">
-                        <h1 class="text-2xl font-semibold lg:text-3xl" x-text="menuFood.name"></h1>
+                        <h1 class="text-2xl font-semibold lg:text-3xl" x-text="selectedMenu.name"></h1>
                         <template x-for="(category, index) in categories" :key="index">
-                            <template x-if="menuFood.categoryId == category.id">
+                            <template x-if="selectedMenu.categoryId == category.id">
                                 <h5 class="font-semibold text-gray-500" x-text="category.name"></h5>
                             </template>
                         </template>
-                        <p class="mt-4" x-text="menuFood.description"></p>
+                        <p class="mt-4" x-text="selectedMenu.description"></p>
                     </div>
                     <div class="flex justify-end px-4 mx-2 mt-8 mb-4">
                         <button type="button" @click="isModalMenu = false"
                             class="inline-flex items-center justify-center px-2 font-medium text-red-600 uppercase focus:outline-none">Tutup</button>
                     </div>
+                </div>
+            </div>
+            <!-- Modal Edit Menu -->
+            <div x-show="isModalEdit" x-transition x-cloak
+                class="fixed top-0 left-0 right-0 z-50 flex items-center justify-center w-full h-screen bg-slate-800/80 md:mx-auto">
+                <div class="w-full max-w-xl mx-4 overflow-hidden bg-white rounded-sm shadow text-slate-800"
+                    @click.outside="isModalEdit = false">
+                    <div class="flex justify-between px-4 py-2 bg-red-600">
+                        <h2 class="text-xl font-semibold text-white lg:text-2xl">Edit Menu</h2>
+                    </div>
+                    <form @submit.prevent="isModalEdit = false" class="px-4 my-4">
+                        <div class="my-2">
+                            <label for="name" class="text-sm text-gray-700 lg:text-base">Nama Menu</label>
+                            <input type="text" id="name" x-model="selectedMenu.name" required
+                                class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                        </div>
+                        <div class="my-2">
+                            <label for="description" class="text-sm text-gray-700 lg:text-base">Deskripsi Menu</label>
+                            <input type="text" id="description" x-model="selectedMenu.description" required
+                                class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                        </div>
+                        <div class="my-2">
+                            <label for="categoryId" class="text-sm text-gray-700 lg:text-base">Kategori Menu</label>
+                            <select name="categoryId" id="categoryId" required x-model="selectedMenu.categoryId"
+                                class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                                <template x-for="category in categories">
+                                    <option :value="category.id" x-text="category.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="my-2">
+                            <label for="link" class="text-sm text-gray-700 lg:text-base">Link Foto Menu</label>
+                            <input type="text" id="link" x-model="selectedMenu.link" required
+                                class="w-full min-h-[2.25rem] py-0 md:min-h-[2.5rem] border-b-2 font-medium focus:border-b-gray-800 border-b-gray-400 outline-0">
+                            <div class="mt-1 overflow-hidden bg-black size-40" x-show="selectedMenu.link">
+                                <img :src="selectedMenu.link" alt="Preview link foto">
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-8 gap-x-4">
+                            <button type="submit"
+                                class="inline-flex items-center justify-center px-2 font-medium text-red-600 focus:outline-none">
+                                Selesai
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
